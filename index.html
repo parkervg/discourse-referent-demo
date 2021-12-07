@@ -18,7 +18,7 @@
   }
 </style>
 
-<body>
+<body onload="LoadApi()">
   <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
       <div class="navbar-header">
@@ -58,16 +58,27 @@
             <li class="list-group-item col-xs-6 col-sm-4 col-md-3">Getting a haircut &#9986;</li>
           </ul>
           <h3> What model can perform this task? </h3>
-          <p> To perform this task, the generative RNN described in <a href="https://arxiv.org/pdf/1708.00781.pdf">Dynamic Entity Representations in Neural Language Models</a> was trained. The model augments a vanilla RNN by constructing dynamic entity
+          <p> To perform this task, the generative RNN described in <a href="https://arxiv.org/pdf/1708.00781.pdf">Dynamic Entity Representations in Neural Language Models</a> was trained. The model augments a vanilla RNN by constructing dynamic
+            entity
             representations that get updated as the text progresses.</p>
           <h3> How do I use this demo? </h3>
           <p>To use this demo, either select an example script from the InScript corpus test set below, or write your own script in the text box.
-          The script should be written in the first-person, and should conclude one word before the next entity referent.
+            The script should be written in the first-person, and should conclude one word before the next entity referent.
             Then, hit 'submit' and see the predictions from the coreference and NP referent EntityNLM models.</p>
     </div>
   </div>
 
 
+  <div class="jumbotron" id="load-api" style="background-color: #F8E9A1; text-align: center;">
+    <div>
+      <p> Waking up API... </p>
+      <div class="loader" id="loader-3">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
 
   <div class="container">
     <div class="form-group">
@@ -102,6 +113,16 @@
 
 
   <script>
+    function LoadApi() {
+      fetch("http://127.0.0.1:8000/is_up/").then(response => response.json())
+        .then(data => {
+          console.log(data);
+          var apiLoader = document.getElementById("load-api");
+          apiLoader.innerHTML = "API is up and ready &#9989;";
+          return true;
+        })
+    }
+
     function GetModelOutput(text) {
       const buttonStyles = ["btn btn-primary disabled",
         "btn btn-secondary disabled",
@@ -113,7 +134,7 @@
         "btn btn-dark disabled"
       ];
       console.log(text);
-      fetch("https://referent-api.herokuapp.com/get_json_prediction/", {
+      fetch("http://127.0.0.1:8000//get_json_prediction/", {
         method: "post",
         "headers": {
           'Accept': 'application/json',
@@ -156,7 +177,7 @@
 
     function GetExampleScript(scriptType) {
       console.log("Fetching example script...")
-      fetch("https://referent-api.herokuapp.com/get_example_script/", {
+      fetch("http://127.0.0.1:8000//get_example_script/", {
           method: "post",
           "headers": {
             'Accept': 'application/json',
@@ -180,4 +201,5 @@
   <script src="static/js/popper.min.js"></script>
   <script src="static/js/bootstrap.min.js"></script>
 </body>
+
 </html>
