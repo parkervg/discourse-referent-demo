@@ -114,7 +114,7 @@
 
   <script>
     function LoadApi() {
-      fetch("http://127.0.0.1:8000/is_up/").then(response => response.json())
+      fetch("https://referent-api.herokuapp.com/is_up/").then(response => response.json())
         .then(data => {
           console.log(data);
           var apiLoader = document.getElementById("load-api");
@@ -134,7 +134,7 @@
         "btn btn-dark disabled"
       ];
       console.log(text);
-      fetch("http://127.0.0.1:8000//get_json_prediction/", {
+      fetch("https://referent-api.herokuapp.com/get_json_prediction/", {
         method: "post",
         "headers": {
           'Accept': 'application/json',
@@ -177,7 +177,7 @@
 
     function GetExampleScript(scriptType) {
       console.log("Fetching example script...")
-      fetch("http://127.0.0.1:8000//get_example_script/", {
+      fetch("https://referent-api.herokuapp.com/get_example_script/", {
           method: "post",
           "headers": {
             'Accept': 'application/json',
