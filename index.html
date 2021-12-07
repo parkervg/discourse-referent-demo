@@ -71,7 +71,7 @@
 
   <div class="jumbotron" id="load-api" style="background-color: #F8E9A1; text-align: center;">
     <div>
-      <p> Waking up API... </p>
+      <p> Waking up API on Heroku... </p>
       <div class="loader" id="loader-3">
         <span></span>
         <span></span>
@@ -118,7 +118,7 @@
         .then(data => {
           console.log(data);
           var apiLoader = document.getElementById("load-api");
-          apiLoader.innerHTML = "API is up and ready &#9989;";
+          apiLoader.innerHTML = "API is up and ready! &#9989;";
           return true;
         })
     }
