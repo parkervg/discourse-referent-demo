@@ -1,0 +1,25 @@
+.jumbotron .btn {
+  font-size: 18px;
+  padding: 14px 24px;
+}
+
+.jumbotron p {
+  font-size: 16px;
+}
+
+html {
+  scroll-snap-type: y mandatory;
+}
+
+section {
+  scroll-snap-align: start;
+  scroll-margin: 10px;
+}
+
+body {
+    padding-bottom: 210px;
+}
+
+.list-group a {
+
+}

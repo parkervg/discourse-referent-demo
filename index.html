@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Discourse Referent Prediction</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link rel="stylesheet" href="static/css/scrollsnap.css">
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="../../assets/js/html5shiv.js"></script>
+      <script src="../../assets/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+<style>
+  body {
+    padding-top: 50px;
+  }
+</style>
+
+<body>
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Parker Glenn</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <!--/.nav-collapse -->
+    </div>
+  </div>
+
+  <div class="jumbotron" style="background-color: #A8D0E6;">
+    <div class="container">
+      <h1> Discourse Referent Prediction </h1>
+      <p>
+        Discourse referent prediction is a task where the next noun phrase referent is predicted, given a context of entities and events.
+        In order to model this intuition that humans have in predicting this future content, the <i>script</i> format is used.
+      </p>
+      <h3> What is a script? </h3>
+      <p> A <i>script</i> is "a standardized sequence of events that describes some stereotypical human activity such as going to a restaurant or visiting a doctor" (Barr and Feigenbaum, 1981). </p>
+      <p class="lead">This model was trained on the <a href="https://arxiv.org/pdf/1703.05260.pdf">InScript Corpus </a>, which contains 1,000 total texts based on 10 different scenarios, including: <p>
+          <ul class="list-group">
+            <li class="list-group-item col-xs-6 col-sm-4 col-md-3">Taking a bath &#128704;</li>
+            <li class="list-group-item col-xs-6 col-sm-4 col-md-3">Planting a tree
+              &#127795;</li>
+            <li class="list-group-item col-xs-6 col-sm-4 col-md-3">Baking a cake &#127874;</li>
+            <li class="list-group-item col-xs-6 col-sm-4 col-md-3">Getting a haircut &#9986;</li>
+          </ul>
+          <h3> What model can perform this task? </h3>
+          To perform this task, the generative RNN described in <a href="https://arxiv.org/pdf/1703.05260.pdf">Dynamic Entity Representations in Neural Language Models</a> was trained. The model augments a vanilla RNN by constructing dynamic entity
+          representations that get updated as the text progresses.
+          <h3> How do I use this demo? </h3>
+          To use this demo, either select an example script from the InScript corpus test set below, or write your own script in the text box.
+          The script should be written in the first-person, and should conclude one word before the next entity referent.
+          Then, hit 'submit' and see the predictions from the coreference and NP referent EntityNLM models.
+    </div>
+  </div>
+
+
+
+  <div class="container">
+    <div class="form-group">
+      <!-- <a name="exampleScript" class="btn btn-warning btn-lg " onclick="GetExampleScript()">Generate a script for me</a> -->
+      <div class="list-group card-columns">
+        <h3> Generate a script for me </h3>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('bus')">Riding a bus</a>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('cake')">Baking a cake</a>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('bath')">Taking a bath</a>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('haircut')">Getting a haircut</a>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('tree')">Planting a tree</a>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('grocery')">Going grocery shopping</a>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('flight')">Flying in an airplane</a>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('library')">Borrowing a book from the library</a>
+        <a class="list-group-item list-group-item-action col-sm-4" href="#!" onclick="GetExampleScript('bicycle')">Repairing a flat bike tire</a>
+      </div>
+
+      <h3> Or, enter script here </h3>
+
+      </label>
+      <textarea class="form-control" id="inputText" rows="5">I went with my brother and sister to plant a tree. She put the  </textarea>
+      <a name="submitButton" class="btn btn-primary btn-lg btn-block" onclick="GetModelOutput(inputText.value)">Submit</a>
+    </div>
+  </div>
+  <div class="jumbotron" id="model-results" style="background-color: #ECECEC; text-align: center;">
+    <div class="jumbotron" style="background-color: #A8D0E6; text-align: center;">
+      <div id="coreference-results"> </div>
+    </div>
+    <hr class="my-4">
+    <div id="referent-results"> </div>
+  </div>
+
+
+  <script>
+    function GetModelOutput(text) {
+      const buttonStyles = ["btn btn-primary disabled",
+        "btn btn-secondary disabled",
+        "btn btn-success disabled",
+        "btn btn-danger disabled",
+        "btn btn-warning disabled",
+        "btn btn-info disabled",
+        "btn btn-light disabled",
+        "btn btn-dark disabled"
+      ];
+      console.log(text);
+      fetch("http://127.0.0.1:8000/get_json_prediction/", {
+        method: "post",
+        "headers": {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: text
+        })
+      }).then(response => response.json()
+        .then(data => {
+          E = data.E;
+          R = data.R;
+          tokenized_text = data.tokenized_text;
+          next_tok = data.next_tok;
+          next_E = data.next_E;
+          var corefResults = document.getElementById("coreference-results");
+          var refResults = document.getElementById("referent-results");
+          var resultText = document.createElement("p");
+          for (var i = 0; i < tokenized_text.length; i++) {
+            if (R[i] != 1) {
+              resultText.innerHTML += " " + tokenized_text[i];
+            } else {
+              var newButton = document.createElement("button");
+              resultText.innerHTML += " ";
+              newButton.className = buttonStyles[E[i] % buttonStyles.length];
+              newButton.innerHTML = tokenized_text[i] + "<sup> " + E[i] + " </sup>";
+              resultText.appendChild(newButton);
+            }
+            corefResults.replaceChild(resultText, corefResults.childNodes[0]);
+            var resultPredictionText = document.createElement("p");
+            resultPredictionText.innerHTML += "Next referent prediction: ";
+            var predButton = document.createElement("button");
+            predButton.className = buttonStyles[next_E % buttonStyles.length];
+            predButton.innerHTML = next_tok + "<sup> " + next_E + " </sup>";
+            resultPredictionText.appendChild(predButton);
+            refResults.replaceChild(resultPredictionText, refResults.childNodes[0]);
+          }
+        }));
+    };
+
+    function GetExampleScript(scriptType) {
+      console.log("Fetching example script...")
+      fetch("http://127.0.0.1:8000/get_example_script/", {
+          method: "post",
+          "headers": {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            "script_type": scriptType
+          })
+        }).then(response => response.json())
+        .then(data => {
+          scriptText = data.text;
+          console.log(scriptText);
+          var scriptTextBox = document.getElementById("inputText");
+          scriptTextBox.value = scriptText;
+        })
+
+    }
+  </script>
+
+  <script src="static/js/jquery.js"></script>
+  <script src="static/js/popper.min.js"></script>
+  <script src="static/js/bootstrap.min.js"></script>
+</body>
+
+</html>
