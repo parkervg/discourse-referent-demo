@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
 
+
 <head>
   <title>Discourse Referent Prediction</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
   <link rel="stylesheet" href="static/css/scrollsnap.css">
+  <link rel="stylesheet" href="static/css/tooltip.css">
   <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
       <script src="../../assets/js/html5shiv.js"></script>
@@ -66,15 +68,15 @@
   </div>
 
 
+
   <div class="jumbotron" id="load-api" style="background-color: #F8E9A1; text-align: center;">
-    <div>
-      <p> Waking up API on Heroku... </p>
-      <div class="loader" id="loader-3">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
+    <p> Waking up API on Heroku... </p>
+    <div class="loader" id="loader-3">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
+  </div>
   </div>
 
   <div class="container">
@@ -97,7 +99,7 @@
 
       </label>
       <textarea class="form-control" id="inputText" rows="5">I went with my brother and sister to plant a tree. She put the  </textarea>
-      <a name="submitButton" class="btn btn-primary btn-lg btn-block" onclick="GetModelOutput(inputText.value)">Submit</a>
+      <a name="submitButton" class="btn btn-primary btn-lg btn-block" onclick="GetModelOutput(inputText.value);">Submit</a>
     </div>
   </div>
   <div class="jumbotron" id="model-results" style="background-color: #ECECEC; text-align: center;">
@@ -144,6 +146,9 @@
         .then(data => {
           E = data.E;
           R = data.R;
+          E_softmax_ents = data.E_softmax_ents;
+          E_softmax_scores = data.E_softmax_scores;
+          R_softmaxes = data.R_softmaxes;
           tokenized_text = data.tokenized_text;
           next_tok = data.next_tok;
           next_E = data.next_E;
@@ -155,25 +160,53 @@
               resultText.innerHTML += " " + tokenized_text[i];
             } else {
               var newButton = document.createElement("button");
+
+              var tooltipSpan = document.createElement("span");
+
+              var tooltipText = "Entity Confidence: " + R_softmaxes[i];
+
+              tooltipText += "\n \n Coreference Confidence: \n";
+              for (var x = 0; x < E_softmax_ents[i].length; x++) {
+                tooltipText += E_softmax_ents[i][x] + "→ " + E_softmax_scores[i][x] + "\n";
+              }
+
+              // Setting attributes for our tooltip
+              tooltipSpan.setAttribute('class', "tooltips");
+              tooltipSpan.setAttribute('tooltip-position', "top");
+              tooltipSpan.setAttribute('tooltip', tooltipText);
+
               resultText.innerHTML += " ";
-              newButton.className = buttonStyles[E[i] % buttonStyles.length];
+              newButton.className = buttonStyles[E[i] %
+                buttonStyles.length];
               newButton.innerHTML = tokenized_text[i] + "<sup> " + E[i] + " </sup>";
-              resultText.appendChild(newButton);
+              tooltipSpan.appendChild(newButton);
+              resultText.appendChild(tooltipSpan);
             }
+
             corefResults.replaceChild(resultText, corefResults.childNodes[0]);
-            var resultPredictionText = document.createElement("p");
+            var
+              resultPredictionText = document.createElement("p");
             resultPredictionText.innerHTML += "Next referent prediction: ";
             var predButton = document.createElement("button");
             predButton.className = buttonStyles[next_E % buttonStyles.length];
             predButton.innerHTML = next_tok + "<sup> " + next_E + " </sup>";
             resultPredictionText.appendChild(predButton);
             refResults.replaceChild(resultPredictionText, refResults.childNodes[0]);
+            loadTooltipJs(); // Needed to tooltips will work on new elements
           }
         }));
     };
 
+    function loadTooltipJs() {
+      var head = document.getElementsByTagName('head')[0];
+      var script = document.createElement('script');
+      script.src = 'static/js/tooltip.js';
+      head.appendChild(script);
+    }
+
+
     function GetExampleScript(scriptType) {
-      console.log("Fetching example script...")
+      console.log("Fetching example script...");
       fetch("https://referent-api.herokuapp.com/get_example_script/", {
           method: "post",
           "headers": {
@@ -190,13 +223,13 @@
           var scriptTextBox = document.getElementById("inputText");
           scriptTextBox.value = scriptText;
         })
-
     }
   </script>
-
   <script src="static/js/jquery.js"></script>
   <script src="static/js/popper.min.js"></script>
   <script src="static/js/bootstrap.min.js"></script>
+  <script src="static/js/tooltip.js"></script>
+
 </body>
 
 </html>
