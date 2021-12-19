@@ -150,6 +150,7 @@
           E_softmax_scores = data.E_softmax_scores;
           R_softmaxes = data.R_softmaxes;
           tokenized_text = data.tokenized_text;
+          detok_markers = data.detok_markers;
           next_tok = data.next_tok;
           next_E = data.next_E;
           var corefResults = document.getElementById("coreference-results");
@@ -157,7 +158,11 @@
           var resultText = document.createElement("p");
           for (var i = 0; i < tokenized_text.length; i++) {
             if (R[i] != 1) {
-              resultText.innerHTML += " " + tokenized_text[i];
+              if (detok_markers[i] == 1) {
+                resultText.innerHTML += " " + tokenized_text[i];
+              } else {
+                resultText.innerHTML += tokenized_text[i];
+              }
             } else {
               var newButton = document.createElement("button");
 
